@@ -47,20 +47,16 @@ public class NeptuneBoltDemo {
             if (result.hasNext()) {
                 Record record = result.next();
                 String message = record.get("message").asString();
-                logger.info("Query result: {}", message);
-                System.out.println("✓ Connection test successful: " + message);
+                logger.info("Connection test successful: {}", message);
             } else {
-                logger.warn("Query returned no results");
-                System.out.println("⚠ Query executed but returned no results");
+                logger.warn("Query executed but returned no results");
             }
             
         } catch (Neo4jException e) {
             logger.error("Bolt driver error during test query: {}", e.getMessage(), e);
-            System.err.println("✗ Connection test failed: " + e.getMessage());
             throw e;
         } catch (Exception e) {
             logger.error("Unexpected error during test query: {}", e.getMessage(), e);
-            System.err.println("✗ Unexpected error: " + e.getMessage());
             throw e;
         }
     }
@@ -70,8 +66,7 @@ public class NeptuneBoltDemo {
      */
     public void runSampleQueries() {
         try (Session session = driver.session()) {
-            logger.info("Starting sample OpenCypher queries...");
-            System.out.println("\n=== Running Sample OpenCypher Queries ===");
+            logger.info("Starting sample OpenCypher queries");
 
             // Query 1: Create some sample nodes
             String createQuery = """
@@ -83,28 +78,28 @@ public class NeptuneBoltDemo {
                 RETURN p1.name as person1, p2.name as person2, c.name as company
                 """;
 
-            logger.info("Executing create query...");
-            System.out.println("\n1. Creating sample data...");
+            logger.info("Creating sample data");
             Result createResult = session.run(createQuery);
             
             if (createResult.hasNext()) {
                 Record record = createResult.next();
-                System.out.println("   Created: " + record.get("person1").asString() + 
-                                 " and " + record.get("person2").asString() + 
-                                 " working for " + record.get("company").asString());
+                logger.info("Created: {} and {} working for {}", 
+                    record.get("person1").asString(),
+                    record.get("person2").asString(),
+                    record.get("company").asString());
             }
 
             // Query 2: Find all persons
             String findQuery = "MATCH (p:Person) RETURN p.name as name, p.age as age ORDER BY p.name";
             
-            logger.info("Executing find query: {}", findQuery);
-            System.out.println("\n2. Finding all persons...");
+            logger.info("Finding all persons");
             Result findResult = session.run(findQuery);
             
             while (findResult.hasNext()) {
                 Record record = findResult.next();
-                System.out.println("   Person: " + record.get("name").asString() + 
-                                 " (age: " + record.get("age").asInt() + ")");
+                logger.info("Person: {} (age: {})", 
+                    record.get("name").asString(),
+                    record.get("age").asInt());
             }
 
             // Query 3: Find relationships
@@ -113,15 +108,15 @@ public class NeptuneBoltDemo {
                 RETURN p.name as person, type(r) as relationship, c.name as company
                 """;
 
-            logger.info("Executing relationship query...");
-            System.out.println("\n3. Finding relationships...");
+            logger.info("Finding relationships");
             Result relationResult = session.run(relationQuery);
             
             while (relationResult.hasNext()) {
                 Record record = relationResult.next();
-                System.out.println("   " + record.get("person").asString() + 
-                                 " " + record.get("relationship").asString() + 
-                                 " " + record.get("company").asString());
+                logger.info("{} {} {}", 
+                    record.get("person").asString(),
+                    record.get("relationship").asString(),
+                    record.get("company").asString());
             }
 
             // Query 4: Cleanup - remove the test data
@@ -131,21 +126,17 @@ public class NeptuneBoltDemo {
                 DETACH DELETE n
                 """;
 
-            logger.info("Executing cleanup query...");
-            System.out.println("\n4. Cleaning up test data...");
+            logger.info("Cleaning up test data");
             session.run(cleanupQuery);
-            System.out.println("   Test data cleaned up successfully");
+            logger.info("Test data cleaned up successfully");
 
             logger.info("Sample queries completed successfully");
-            System.out.println("\n✓ All sample queries executed successfully!");
 
         } catch (Neo4jException e) {
             logger.error("Bolt driver error during sample queries: {}", e.getMessage(), e);
-            System.err.println("✗ Sample queries failed: " + e.getMessage());
             throw e;
         } catch (Exception e) {
             logger.error("Unexpected error during sample queries: {}", e.getMessage(), e);
-            System.err.println("✗ Unexpected error: " + e.getMessage());
             throw e;
         }
     }
@@ -245,17 +236,15 @@ public class NeptuneBoltDemo {
             // Run sample queries
             demo.runSampleQueries();
 
-            logger.info("Demo completed successfully");
-            System.out.println("\n🎉 Neptune Bolt Demo completed successfully!");
-
         } catch (Exception e) {
             logger.error("Demo failed: {}", e.getMessage(), e);
-            System.err.println("\n💥 Demo failed: " + e.getMessage());
             System.exit(1);
         } finally {
             if (demo != null) {
                 demo.close();
             }
         }
+        
+        logger.info("Neptune Bolt Demo completed successfully");
     }
 }

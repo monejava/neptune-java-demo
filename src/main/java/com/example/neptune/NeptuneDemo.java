@@ -37,14 +37,13 @@ public class NeptuneDemo {
         try {
             switch (demoType) {
                 case "bolt":
-                    logger.info("Starting Neptune Bolt Demo (Bolt protocol)...");
-                    System.out.println("=== Running Neptune Bolt Demo (Bolt Protocol) ===");
+                case "neo4j": // Keep backward compatibility
+                    logger.info("Starting Neptune Bolt Demo (Bolt protocol)");
                     NeptuneBoltDemo.main(new String[0]);
                     break;
                     
                 case "data-api":
-                    logger.info("Starting Neptune Data API Demo (REST)...");
-                    System.out.println("=== Running Neptune Data API Demo (REST) ===");
+                    logger.info("Starting Neptune Data API Demo (REST)");
                     NeptuneDataApiDemo.main(new String[0]);
                     break;
                     

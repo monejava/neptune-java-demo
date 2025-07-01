@@ -2,6 +2,8 @@
 
 A Java Maven project demonstrating how to connect to Amazon Neptune using OpenCypher queries via both Bolt protocol and REST API.
 
+⚠️ **The demo does NOT use IAM Auth authentication.** ⚠️
+
 ## Key Features
 
 - **Dual Connection Methods**: 
