@@ -2,8 +2,6 @@
 
 A Java Maven project demonstrating how to connect to Amazon Neptune using OpenCypher queries via both Bolt protocol and REST API.
 
-⚠️ **The demo does NOT use IAM Auth authentication.** ⚠️
-
 ## Key Features
 
 - **Dual Connection Methods**: 
@@ -52,6 +50,66 @@ java -jar target/neptune-demo-app.jar data-api
 - **data-api**: Uses AWS SDK Neptune Data API for REST-based OpenCypher queries
 
 ## Deploy
+
+### Configuration
+
+The application supports multiple configuration methods with a clear priority hierarchy:
+
+**Priority Order (highest to lowest):**
+1. Environment variables
+2. `application.properties` file
+3. Default values
+
+**Local Development - application.properties**
+```properties
+# Neptune Configuration
+neptune.endpoint=your-cluster-endpoint.amazonaws.com
+neptune.port=8182
+
+# AWS Configuration  
+aws.region=us-east-1
+
+# IAM Authentication
+neptune.iam.auth=false
+
+# AWS Credentials (optional)
+aws.access.key=your-access-key
+aws.secret.key=your-secret-key
+aws.session.token=your-session-token
+```
+
+**Environment Variables**
+```bash
+export NEPTUNE_ENDPOINT="your-cluster-endpoint.amazonaws.com"
+export NEPTUNE_PORT="8182"
+export AWS_REGION="us-east-1"
+export NEPTUNE_IAM_AUTH="true"
+export AWS_ACCESS_KEY_ID="your-access-key"
+export AWS_SECRET_ACCESS_KEY="your-secret-key"
+export AWS_SESSION_TOKEN="your-session-token"
+```
+
+**Deploy Script Configuration**
+
+The `./deploy.sh configure` command provides an interactive setup:
+- Prompts for Neptune endpoint and port
+- Asks for AWS region
+- Enables/disables IAM authentication
+- Optionally collects AWS credentials (Access Key, Secret Key, Session Token)
+- Creates environment configuration file on EC2 instance
+
+### IAM Authentication
+
+**Disabled (default):** Uses no authentication - suitable for Neptune clusters in private VPCs.
+
+**Enabled:** Uses AWS IAM for authentication with these credential options:
+- **Default Credential Chain:** Leave credentials empty to use EC2 instance roles, AWS profiles, or environment
+- **Static Credentials:** Provide Access Key + Secret Key for long-term credentials  
+- **Temporary Credentials:** Provide Access Key + Secret Key + Session Token for STS/assumed role credentials
+
+When IAM auth is enabled:
+- **Bolt Demo:** Uses `NeptuneAuthToken` with AWS Signature Version 4
+- **Data API Demo:** Uses AWS SDK credential providers automatically
 
 ### Quick Deployment with Deploy Script
 
