@@ -177,6 +177,24 @@ case $COMMAND in
         NEPTUNE_PORT=${NEPTUNE_PORT:-8182}
         read -p "AWS Region (e.g., us-east-1): " AWS_REGION
         
+        # Ask about IAM Auth
+        echo ""
+        read -p "Enable IAM Authentication? (y/n, default: n): " IAM_AUTH_INPUT
+        IAM_AUTH_INPUT=${IAM_AUTH_INPUT:-n}
+        
+        if [[ "$IAM_AUTH_INPUT" =~ ^[Yy]$ ]]; then
+            IAM_AUTH="true"
+            echo -e "${YELLOW}IAM Auth enabled. You can optionally provide AWS credentials:${NC}"
+            read -p "AWS Access Key ID (optional, leave empty to use default credentials): " AWS_ACCESS_KEY
+            read -p "AWS Secret Access Key (optional, leave empty to use default credentials): " AWS_SECRET_KEY
+            read -p "AWS Session Token (optional, for temporary credentials): " AWS_SESSION_TOKEN
+        else
+            IAM_AUTH="false"
+            AWS_ACCESS_KEY=""
+            AWS_SECRET_KEY=""
+            AWS_SESSION_TOKEN=""
+        fi
+        
         # Create configuration file locally
         cat > /tmp/neptune-config.env << EOF
 # Neptune Java Demo - Environment Configuration
@@ -188,6 +206,26 @@ export NEPTUNE_PORT="$NEPTUNE_PORT"
 
 # AWS Configuration
 export AWS_REGION="$AWS_REGION"
+
+# IAM Authentication
+export NEPTUNE_IAM_AUTH="$IAM_AUTH"
+EOF
+
+        # Add AWS credentials if provided
+        if [ -n "$AWS_ACCESS_KEY" ]; then
+            echo "export AWS_ACCESS_KEY_ID=\"$AWS_ACCESS_KEY\"" >> /tmp/neptune-config.env
+        fi
+        
+        if [ -n "$AWS_SECRET_KEY" ]; then
+            echo "export AWS_SECRET_ACCESS_KEY=\"$AWS_SECRET_KEY\"" >> /tmp/neptune-config.env
+        fi
+        
+        if [ -n "$AWS_SESSION_TOKEN" ]; then
+            echo "export AWS_SESSION_TOKEN=\"$AWS_SESSION_TOKEN\"" >> /tmp/neptune-config.env
+        fi
+        
+        # Add remaining configuration
+        cat >> /tmp/neptune-config.env << EOF
 
 # Java Options
 export JAVA_OPTS="-Xmx512m -Xms256m"
